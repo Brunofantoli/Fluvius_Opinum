@@ -10,9 +10,6 @@ from_date = "2025-08-01T23:00:00Z"
 to_date = "2025-08-04T23:00:00Z"
 
 
-
-FLUVIUS_API_KEY = os.getenv("FLUVIUS_API_KEY")
-
 ## Fluvius token acquisition
 def get_fluvius_token():
     client_id = os.getenv("FLUVIUS_CLIENT_ID")
