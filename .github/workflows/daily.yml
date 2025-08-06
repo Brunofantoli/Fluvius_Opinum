@@ -2,7 +2,7 @@ name: Fluvius to Opinum Daily Job
 
 on:
   schedule:
-    - cron: "0 10 * * *"  # Every day at 10 AM UTC (12 AM Brussels time)
+    - cron: "0 13 * * *"  # Every day at 1 PM UTC (3 PM Brussels time)
   workflow_dispatch: # Allow manual trigger
 
 jobs:
