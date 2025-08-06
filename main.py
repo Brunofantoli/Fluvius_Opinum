@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, UTC
 # Load API keys from .env
 load_dotenv()
 variable_id = 7185058  # Replace with actual Opinum variableId
+ean = "541448820055391175"  # Replace with actual EAN number
 
 # Get yesterday’s start and end (UTC or local based on Fluvius needs)
 yesterday = datetime.now(UTC).date() - timedelta(days=1)
@@ -93,7 +94,7 @@ def get_fluvius_data():
         "Ocp-Apim-Subscription-Key": os.getenv("FLUVIUS_SUBSCRIPTION_KEY"),
     }
     params = {
-        "eanNumber": "541448820055391175",  
+        "eanNumber": ean,  
         "PeriodType": "readTime",
         "granularity": "hourly_quarterhourly",
         "from": from_date,
