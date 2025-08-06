@@ -23,4 +23,9 @@ jobs:
       - name: Run script
         env:
           FLUVIUS_CLIENT_ID: ${{ secrets.FLUVIUS_CLIENT_ID }}
+          FLUVIUS_TENANT_ID: ${{ secrets.FLUVIUS_TENANT_ID }}
+          FLUVIUS_CERT_THUMBPRINT: ${{ secrets.FLUVIUS_CERT_THUMBPRINT }}
+          OPINUM_CLIENT_SECRET: ${{ secrets.OPINUM_CLIENT_SECRET }}
+          OPINUM_USERNAME: ${{ secrets.OPINUM_USERNAME }}
+          OPINUM_PASSWORD: ${{ secrets.OPINUM_PASSWORD }}
         run: python main.py
