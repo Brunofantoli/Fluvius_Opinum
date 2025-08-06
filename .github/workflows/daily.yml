@@ -1,0 +1,24 @@
+name: Fluvius to Opinum Daily Job
+
+on:
+  schedule:
+    - cron: "0 4 * * *"  # Every day at 4 AM UTC (6 AM Brussels time)
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  fluvius_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run script
+        run: python fluvius_to_opinum.py

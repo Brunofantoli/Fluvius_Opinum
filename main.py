@@ -2,12 +2,20 @@ import requests
 import os
 from dotenv import load_dotenv
 from msal import ConfidentialClientApplication
-
-
+from datetime import datetime, timedelta, UTC
 # Load API keys from .env
 load_dotenv()
-from_date = "2025-08-01T23:00:00Z"
-to_date = "2025-08-04T23:00:00Z"
+variable_id = 7185058  # Replace with actual Opinum variableId
+
+# Get yesterday’s start and end (UTC or local based on Fluvius needs)
+yesterday = datetime.now(UTC).date() - timedelta(days=1)
+start_date = yesterday.isoformat()  # '2025-08-04'
+end_date = (yesterday+ timedelta(days=1)).isoformat()    # Same for a single day
+print(start_date, end_date)
+
+
+from_date = f"{start_date}T00:00:00Z"
+to_date = f"{end_date}T00:00:00Z"
 
 
 ## Fluvius token acquisition
@@ -107,7 +115,6 @@ def prepare_data(raw_data):
     """
     Transforms Fluvius quarter-hourly electricity data into Opinum format.
     """
-    variable_id = 7185058  # Replace with actual Opinum variableId
 
     # Navigate safely into the data structure
     try:
