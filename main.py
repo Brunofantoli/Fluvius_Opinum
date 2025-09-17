@@ -17,7 +17,7 @@ ean = "541448820055391175"  # Replace with actual EAN number
 yesterday = datetime.now(UTC).date() - timedelta(days=1)
 start_date = yesterday.isoformat()
 end_date = (yesterday + timedelta(days=1)).isoformat()
-print(start_date, end_date)
+print(f"Updating data from {start_date} to {end_date}")
 
 from_date = f"{start_date}T00:00:00Z"
 to_date = f"{end_date}T00:00:00Z"

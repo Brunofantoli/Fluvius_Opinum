@@ -97,6 +97,7 @@ def prepare_data(raw_data, variable_id):
                     "date": timestamp,
                     "value": offtake
                 })
+    print("The last data point is from", formatted_data[-1]["date"] if formatted_data else "N/A")
     return [{
         "variableId": variable_id,
         "data": formatted_data
