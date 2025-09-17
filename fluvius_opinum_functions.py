@@ -10,9 +10,9 @@ def get_fluvius_token():
     public_cert_path = os.getenv("FLUVIUS_CER_PATH")
     scope = os.getenv("FLUVIUS_SCOPE")
     authority = f"https://login.microsoftonline.com/{tenant_id}"
-    with open(private_key_path, 'r') as pkf:
+    with open(private_key_path, 'r') as pkf: # type: ignore
         private_key = pkf.read()
-    with open(public_cert_path, 'r') as cf:
+    with open(public_cert_path, 'r') as cf: # type: ignore
         public_cert = cf.read()
     from msal import ConfidentialClientApplication
     app = ConfidentialClientApplication(
@@ -25,11 +25,11 @@ def get_fluvius_token():
         }
     )
     result = app.acquire_token_for_client(scopes=[scope])
-    if "access_token" in result:
+    if "access_token" in result: # type: ignore
         print("Fluvius token acquired.")
-        return result["access_token"]
+        return result["access_token"] # type: ignore
     else:
-        print("Fluvius token request failed:", result.get("error_description"))
+        print("Fluvius token request failed:", result.get("error_description")) # type: ignore
         return None
 
 def get_opinum_token():
@@ -42,7 +42,7 @@ def get_opinum_token():
         "password": os.getenv("OPINUM_PASSWORD"),
         "scope": os.getenv("OPINUM_SCOPE")
     }
-    response = requests.post(url, data=data)
+    response = requests.post(url, data=data) # type: ignore
     if response.status_code == 200:
         token = response.json().get("access_token")
         print("Opinum token acquired.")
