@@ -15,7 +15,7 @@ ean = "541448820055391175"  # Replace with actual EAN number
 
 # Get yesterday’s start and end (UTC or local based on Fluvius needs)
 yesterday = datetime.now(UTC).date() - timedelta(days=1)
-start_date = yesterday.isoformat()
+start_date = (yesterday - timedelta(days=1)).isoformat()
 end_date = (yesterday + timedelta(days=1)).isoformat()
 print(f"Updating data from {start_date} to {end_date}")
 
