@@ -31,6 +31,7 @@ def main():
         if raw_data:
             prepared = prepare_data(raw_data, variable_id)
             send_to_opinum(prepared, opinum_token)
+    print("Daily update complete.")
 
 if __name__ == "__main__":
     main()

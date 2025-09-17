@@ -1,9 +1,16 @@
-name: Fluvius to Opinum Daily Job
+name: Fluvius to Opinum Custom Range Update Job
 
 on:
-  schedule:
-    - cron: "0 13 * * *"  # Every day at 1 PM UTC (3 PM Brussels time)
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Start date (YYYY-MM-DD)'
+        required: true
+        type: string
+      end_date:
+        description: 'End date (YYYY-MM-DD)'
+        required: true
+        type: string
 
 jobs:
   fluvius_job:
@@ -28,4 +35,5 @@ jobs:
           OPINUM_CLIENT_SECRET: ${{ secrets.OPINUM_CLIENT_SECRET }}
           OPINUM_USERNAME: ${{ secrets.OPINUM_USERNAME }}
           OPINUM_PASSWORD: ${{ secrets.OPINUM_PASSWORD }}
-        run: python daily_update.py
+        run: |
+          python custom_range_update.py ${{ github.event.inputs.start_date }} ${{ github.event.inputs.end_date }}
