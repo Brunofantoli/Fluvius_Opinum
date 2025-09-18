@@ -113,9 +113,10 @@ def prepare_data(raw_data, variable_id):
                 # Convert UTC timestamp to Brussels time
                 try:
                     dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-                    dt_brussels = dt_utc.astimezone(brussels_tz)
+                    dt_brussels = dt_utc.astimezone(ZoneInfo("Europe/Brussels"))
                     local_timestamp = dt_brussels.isoformat()
-                    print("The difference between UTC and Brussels time is: ", (dt_brussels-dt_utc))
+                    offset = dt_brussels.utcoffset()
+                    print("The difference between UTC and Brussels time is: ", (offset.total_seconds() / 3600 if dt_brussels.utcoffset() else 0)) # type: ignore
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
                     local_timestamp = timestamp
