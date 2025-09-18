@@ -132,7 +132,10 @@ def prepare_data(raw_data, variable_id):
                     "date": local_timestamp,
                     "value": offtake
                 })
-    print("The data is sent between these two dates: ", formatted_data[0]["date"],formatted_data[-1]["date"] if formatted_data else "N/A")
+    if formatted_data:
+        print("The data is sent between these two dates: ", formatted_data[0]["date"], formatted_data[-1]["date"])
+    else:
+        print("No data was sent for this period.")
     return [{
         "variableId": variable_id,
         "data": formatted_data
