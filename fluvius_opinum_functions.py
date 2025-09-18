@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 import requests
 import os
 from datetime import datetime
@@ -82,35 +83,35 @@ def prepare_data(raw_data, variable_id):
     except KeyError:
         print("❌ Expected key 'data.electricityMeters' not found.")
         return []
-        formatted_data = []
-        brussels_tz = ZoneInfo("Europe/Brussels")
-        for meter in electricity_meters:
-            quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
-            for entry in quarter_hourly_data:
-                timestamp = entry.get("timestampStart")
-                measurements = entry.get("measurement", [])
-                if not timestamp or not measurements:
-                    continue
-                measurement = measurements[0]
-                offtake = measurement.get("offtakeValue")
-                if offtake is not None:
-                    # Convert UTC timestamp to Brussels time
-                    try:
-                        dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-                        dt_brussels = dt_utc.astimezone(brussels_tz)
-                        local_timestamp = dt_brussels.isoformat()
-                    except Exception as e:
-                        print(f"Timestamp conversion error: {e}")
-                        local_timestamp = timestamp
-                    formatted_data.append({
-                        "date": local_timestamp,
-                        "value": offtake
-                    })
-        print("The data is sent between these two dates: ", formatted_data[0]["date"],formatted_data[-1]["date"] if formatted_data else "N/A")
-        return [{
-            "variableId": variable_id,
-            "data": formatted_data
-        }]
+    formatted_data = []
+    brussels_tz = ZoneInfo("Europe/Brussels")
+    for meter in electricity_meters:
+        quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
+        for entry in quarter_hourly_data:
+            timestamp = entry.get("timestampStart")
+            measurements = entry.get("measurement", [])
+            if not timestamp or not measurements:
+                continue
+            measurement = measurements[0]
+            offtake = measurement.get("offtakeValue")
+            if offtake is not None:
+                # Convert UTC timestamp to Brussels time
+                try:
+                    dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                    dt_brussels = dt_utc.astimezone(brussels_tz)
+                    local_timestamp = dt_brussels.isoformat()
+                except Exception as e:
+                    print(f"Timestamp conversion error: {e}")
+                    local_timestamp = timestamp
+                formatted_data.append({
+                    "date": local_timestamp,
+                    "value": offtake
+                })
+    print("The data is sent between these two dates: ", formatted_data[0]["date"],formatted_data[-1]["date"] if formatted_data else "N/A")
+    return [{
+        "variableId": variable_id,
+        "data": formatted_data
+    }]
 
 def send_to_opinum(data, opinum_token):
     url = "https://push.opinum.com/api/data"
