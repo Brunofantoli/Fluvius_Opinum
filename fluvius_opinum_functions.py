@@ -64,24 +64,9 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
     start_date_local, end_date_local: datetime.date objects in Brussels local time
     """
-    if isinstance(start_date_local, str):
-        start_date_local = datetime.strptime(start_date_local, "%Y-%m-%d").date()
-    if isinstance(end_date_local, str):
-        end_date_local = datetime.strptime(end_date_local, "%Y-%m-%d").date()
-    brussels_tz = ZoneInfo("Europe/Brussels")
-    # Start of start_date_local in Brussels time (aware)
-    start_dt_local = datetime.combine(start_date_local, time(0, 0), brussels_tz)
-    # Start of day after end_date_local in Brussels time (aware)
-    end_dt_local = datetime.combine(end_date_local + timedelta(days=1), time(0, 0), brussels_tz)
-    # Get offset in hours using helper
-    offset_hours_start = get_timezone_offset_hours(start_dt_local)
-    offset_hours_end = get_timezone_offset_hours(end_dt_local)
-    # Correct by subtracting offset
-    corrected_start_dt = start_dt_local - timedelta(hours=offset_hours_start)
-    corrected_end_dt = end_dt_local - timedelta(hours=offset_hours_end)
-    from_date = corrected_start_dt.astimezone(UTC).isoformat().replace('+00:00', 'Z')
-    to_date = corrected_end_dt.astimezone(UTC).isoformat().replace('+00:00', 'Z')
-    
+    from_date = start_date_local
+    to_date = end_date_local
+        
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
