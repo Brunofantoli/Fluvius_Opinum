@@ -66,7 +66,7 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
     from_date = start_date_local
     to_date = end_date_local
-        
+
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
@@ -99,6 +99,8 @@ def prepare_data(raw_data, variable_id):
         return []
     formatted_data = []
     brussels_tz = ZoneInfo("Europe/Brussels")
+    offset = get_timezone_offset_hours(datetime.now(brussels_tz))
+    print(f"Current timezone offset from UTC: {offset} hours")
     for meter in electricity_meters:
         quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
         for entry in quarter_hourly_data:
