@@ -113,8 +113,8 @@ def prepare_data(raw_data, variable_id):
             if offtake is not None:
                 # Convert UTC timestamp to Brussels time
                 try:
-                    dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-                    dt_brussels = dt_utc.astimezone(brussels_tz)
+                    dt_utc = timestamp
+                    dt_brussels = dt_utc.timedelta(hours=offset)
                     local_timestamp = dt_brussels.isoformat()
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
