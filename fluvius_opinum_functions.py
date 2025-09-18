@@ -3,14 +3,6 @@ import requests
 import os
 from datetime import datetime, timedelta, time, UTC
 
-def get_timezone_offset_hours(dt):
-    """
-    Returns the offset in hours between UTC and the timezone of the given datetime.
-    dt must be timezone-aware.
-    """
-    offset = dt.utcoffset()
-    return offset.total_seconds() / 3600 if offset is not None else 0
-
 def get_fluvius_token():
     client_id = os.getenv("FLUVIUS_CLIENT_ID")
     tenant_id = os.getenv("FLUVIUS_TENANT_ID")
@@ -99,7 +91,6 @@ def prepare_data(raw_data, variable_id):
         return []
     formatted_data = []
     brussels_tz = ZoneInfo("Europe/Brussels")
-    offset = get_timezone_offset_hours(datetime.now(brussels_tz))
     for meter in electricity_meters:
         quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
         for entry in quarter_hourly_data:
@@ -113,7 +104,7 @@ def prepare_data(raw_data, variable_id):
                 # Convert UTC timestamp to Brussels time
                 try:
                     dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-                    dt_brussels = dt_utc.astimezone(ZoneInfo("Europe/Brussels"))
+                    dt_brussels = dt_utc.astimezone(brussels_tz)
                     local_timestamp = dt_brussels.isoformat()
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
