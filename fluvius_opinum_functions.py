@@ -70,8 +70,13 @@ def get_opinum_token():
 
 def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
-    start_date_local, end_date_local: datetime.date objects in Brussels local time
+    start_date_local, end_date_local: datetime.date objects or strings in Brussels local time
     """
+    from datetime import datetime as dtmod
+    if isinstance(start_date_local, str):
+        start_date_local = dtmod.strptime(start_date_local, "%Y-%m-%d").date()
+    if isinstance(end_date_local, str):
+        end_date_local = dtmod.strptime(end_date_local, "%Y-%m-%d").date()
     from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
