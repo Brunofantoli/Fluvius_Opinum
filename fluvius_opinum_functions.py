@@ -1,7 +1,23 @@
 from zoneinfo import ZoneInfo
 import requests
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, UTC, time
+
+def brussels_date_range_to_utc(start_date, end_date):
+    """
+    Convert Brussels local date range to UTC ISO8601 strings for Fluvius API.
+    start_date, end_date: datetime.date objects (local Brussels time)
+    Returns: (from_date_utc, to_date_utc) as ISO8601 strings
+    """
+    brussels_tz = ZoneInfo("Europe/Brussels")
+    # Start of start_date in Brussels time
+    start_dt_local = datetime.combine(start_date, time(0, 0), brussels_tz)
+    # Start of day after end_date in Brussels time
+    end_dt_local = datetime.combine(end_date + timedelta(days=1), time(0, 0), brussels_tz)
+    # Convert to UTC
+    start_dt_utc = start_dt_local.astimezone(UTC)
+    end_dt_utc = end_dt_local.astimezone(UTC)
+    return start_dt_utc.isoformat().replace('+00:00', 'Z'), end_dt_utc.isoformat().replace('+00:00', 'Z')
 
 def get_fluvius_token():
     client_id = os.getenv("FLUVIUS_CLIENT_ID")
@@ -52,7 +68,11 @@ def get_opinum_token():
         print("Token request failed:", response.text)
         return None
 
-def get_fluvius_data(fluvius_token, ean, from_date, to_date):
+def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
+    """
+    start_date_local, end_date_local: datetime.date objects in Brussels local time
+    """
+    from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
