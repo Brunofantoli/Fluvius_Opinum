@@ -72,7 +72,8 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
     start_date_local, end_date_local: datetime.date objects in Brussels local time
     """
-    from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
+    #from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
+    from_date, to_date = start_date_local, end_date_local
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
