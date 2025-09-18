@@ -17,7 +17,7 @@ def brussels_date_range_to_utc(start_date, end_date):
     # Convert to UTC
     start_dt_utc = start_dt_local.astimezone(UTC)
     end_dt_utc = end_dt_local.astimezone(UTC)
-    return start_dt_utc.isoformat().replace('+00:00', 'Z'), end_dt_utc.isoformat().replace('+00:00', 'Z')
+    return start_dt_utc.isoformat(), end_dt_utc.isoformat()
 
 def get_fluvius_token():
     client_id = os.getenv("FLUVIUS_CLIENT_ID")
@@ -70,13 +70,8 @@ def get_opinum_token():
 
 def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
-    start_date_local, end_date_local: datetime.date objects or strings in Brussels local time
+    start_date_local, end_date_local: datetime.date objects in Brussels local time
     """
-    from datetime import datetime as dtmod
-    if isinstance(start_date_local, str):
-        start_date_local = dtmod.strptime(start_date_local, "%Y-%m-%d").date()
-    if isinstance(end_date_local, str):
-        end_date_local = dtmod.strptime(end_date_local, "%Y-%m-%d").date()
     from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
@@ -132,10 +127,7 @@ def prepare_data(raw_data, variable_id):
                     "date": local_timestamp,
                     "value": offtake
                 })
-    if formatted_data:
-        print("The data is sent between these two dates: ", formatted_data[0]["date"], formatted_data[-1]["date"])
-    else:
-        print("No data was sent for this period.")
+    print("The data is sent between these two dates: ", formatted_data[0]["date"],formatted_data[-1]["date"] if formatted_data else "N/A")
     return [{
         "variableId": variable_id,
         "data": formatted_data
