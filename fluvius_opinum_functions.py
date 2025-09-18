@@ -1,23 +1,15 @@
 from zoneinfo import ZoneInfo
 import requests
 import os
-from datetime import datetime, timedelta, UTC, time
+from datetime import datetime, timedelta, time, UTC
 
-def brussels_date_range_to_utc(start_date, end_date):
+def get_timezone_offset_hours(dt):
     """
-    Convert Brussels local date range to UTC ISO8601 strings for Fluvius API.
-    start_date, end_date: datetime.date objects (local Brussels time)
-    Returns: (from_date_utc, to_date_utc) as ISO8601 strings
+    Returns the offset in hours between UTC and the timezone of the given datetime.
+    dt must be timezone-aware.
     """
-    brussels_tz = ZoneInfo("Europe/Brussels")
-    # Start of start_date in Brussels time
-    start_dt_local = datetime.combine(start_date, time(0, 0), brussels_tz)
-    # Start of day after end_date in Brussels time
-    end_dt_local = datetime.combine(end_date + timedelta(days=1), time(0, 0), brussels_tz)
-    # Convert to UTC
-    start_dt_utc = start_dt_local.astimezone(UTC)
-    end_dt_utc = end_dt_local.astimezone(UTC)
-    return start_dt_utc.isoformat(), end_dt_utc.isoformat()
+    offset = dt.utcoffset()
+    return offset.total_seconds() / 3600 if offset is not None else 0
 
 def get_fluvius_token():
     client_id = os.getenv("FLUVIUS_CLIENT_ID")
@@ -72,8 +64,24 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     """
     start_date_local, end_date_local: datetime.date objects in Brussels local time
     """
-    #from_date, to_date = brussels_date_range_to_utc(start_date_local, end_date_local)
-    from_date, to_date = start_date_local, end_date_local
+    if isinstance(start_date_local, str):
+        start_date_local = datetime.strptime(start_date_local, "%Y-%m-%d").date()
+    if isinstance(end_date_local, str):
+        end_date_local = datetime.strptime(end_date_local, "%Y-%m-%d").date()
+    brussels_tz = ZoneInfo("Europe/Brussels")
+    # Start of start_date_local in Brussels time (aware)
+    start_dt_local = datetime.combine(start_date_local, time(0, 0), brussels_tz)
+    # Start of day after end_date_local in Brussels time (aware)
+    end_dt_local = datetime.combine(end_date_local + timedelta(days=1), time(0, 0), brussels_tz)
+    # Get offset in hours using helper
+    offset_hours_start = get_timezone_offset_hours(start_dt_local)
+    offset_hours_end = get_timezone_offset_hours(end_dt_local)
+    # Correct by subtracting offset
+    corrected_start_dt = start_dt_local - timedelta(hours=offset_hours_start)
+    corrected_end_dt = end_dt_local - timedelta(hours=offset_hours_end)
+    from_date = corrected_start_dt.astimezone(UTC).isoformat().replace('+00:00', 'Z')
+    to_date = corrected_end_dt.astimezone(UTC).isoformat().replace('+00:00', 'Z')
+    
     url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
@@ -83,8 +91,8 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
         "eanNumber": ean,
         "PeriodType": "readTime",
         "granularity": "hourly_quarterhourly",
-        "from": from_date,
-        "to": to_date
+            "from": from_date,
+            "to": to_date
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
