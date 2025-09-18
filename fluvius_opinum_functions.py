@@ -100,7 +100,6 @@ def prepare_data(raw_data, variable_id):
     formatted_data = []
     brussels_tz = ZoneInfo("Europe/Brussels")
     offset = get_timezone_offset_hours(datetime.now(brussels_tz))
-    print(f"Current timezone offset from UTC: {offset} hours")
     for meter in electricity_meters:
         quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
         for entry in quarter_hourly_data:
