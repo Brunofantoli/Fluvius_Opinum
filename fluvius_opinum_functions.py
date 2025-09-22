@@ -59,7 +59,7 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     from_date = start_date_local
     to_date = end_date_local
 
-    url = "https://apihub.fluvius.be/esco-live/api/v2.0/mandate/energy"
+    url = "https://apihub.fluvius.be/esco-live/v3/api/mandate/energy"
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
         "Ocp-Apim-Subscription-Key": os.getenv("FLUVIUS_SUBSCRIPTION_KEY"),
@@ -82,24 +82,29 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
 
 def prepare_data(raw_data, variable_id):
     try:
-        electricity_meters = raw_data["data"]["electricityMeters"]
-        if not electricity_meters:
-            print("❌ No electricity meters found.")
+        physical_meters = raw_data["data"]["headpoint"]["physicalMeters"]
+        if not physical_meters:
+            print("❌ No physical meters found.")
             return []
     except KeyError:
-        print("❌ Expected key 'data.electricityMeters' not found.")
+        print("❌ Expected key 'data.headpoint.physicalMeters' not found.")
         return []
     formatted_data = []
     brussels_tz = ZoneInfo("Europe/Brussels")
-    for meter in electricity_meters:
+    for meter in physical_meters:
         quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
         for entry in quarter_hourly_data:
-            timestamp = entry.get("timestampStart")
-            measurements = entry.get("measurement", [])
+            timestamp = entry.get("start")
+            measurements = entry.get("measurements", [])
             if not timestamp or not measurements:
                 continue
+            # v3: measurements is a list, but we expect only one per entry
             measurement = measurements[0]
-            offtake = measurement.get("offtakeValue")
+            offtake = (
+                measurement.get("offtake", {})
+                .get("total", {})
+                .get("value")
+            )
             if offtake is not None:
                 # Convert UTC timestamp to Brussels time
                 try:
@@ -113,7 +118,10 @@ def prepare_data(raw_data, variable_id):
                     "date": local_timestamp,
                     "value": offtake
                 })
-    print("The data is sent between these two dates: ", formatted_data[0]["date"],formatted_data[-1]["date"] if formatted_data else "N/A")
+    if formatted_data:
+        print("The data is sent between these two dates: ", formatted_data[0]["date"], formatted_data[-1]["date"])
+    else:
+        print("No data was sent for this period.")
     return [{
         "variableId": variable_id,
         "data": formatted_data
