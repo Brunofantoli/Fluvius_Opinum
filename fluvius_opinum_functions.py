@@ -65,11 +65,11 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
         "Ocp-Apim-Subscription-Key": os.getenv("FLUVIUS_SUBSCRIPTION_KEY"),
     }
     params = {
-        "eanNumber": ean,
+        "ean": ean,
         "PeriodType": "readTime",
         "granularity": "hourly_quarterhourly",
-            "from": from_date,
-            "to": to_date
+        "from": from_date,
+        "to": to_date
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
