@@ -110,7 +110,7 @@ def prepare_data(raw_data, variable_id):
                 try:
                     dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
                     dt_brussels = dt_utc.astimezone(brussels_tz)
-                    local_timestamp = dt_brussels.isoformat()
+                    local_timestamp = dt_brussels.isoformat().replace("+02:00", "Z").replace("+01:00", "Z")
                     print(f"Converted {timestamp} to {local_timestamp}")
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
