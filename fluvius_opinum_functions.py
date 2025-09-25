@@ -106,10 +106,10 @@ def prepare_data(raw_data, variable_id):
                 .get("value")
             )
             if offtake is not None:
-                # Convert UTC timestamp to Brussels time
+                # Convert UTC timestamp to UTC +1
                 try:
                     dt_utc = datetime.fromisoformat(timestamp)
-                    local_timestamp = (dt_utc + timedelta(hours=1)).isoformat() #Opinum expects timestamps in UTC+1
+                    local_timestamp = (dt_utc + timedelta(hours=1)).isoformat().replace("+00:00","Z") #Opinum expects timestamps in UTC+1
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
                     local_timestamp = timestamp
