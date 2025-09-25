@@ -74,7 +74,7 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
         data = response.json()
-        print("Fluvius data retrievedbetween these two dates: ", data["data"]["headpoint"]["physicalMeters"]["quarterHourlyEnergy"][0]["start"], data["data"]["headpoint"]["physicalMeters"]["quarterHourlyEnergy"][-1]["start"])
+        print("Fluvius data retrieved.")
         return data
     else:
         print("Fluvius API error:", response.text)
@@ -111,6 +111,7 @@ def prepare_data(raw_data, variable_id):
                     dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
                     dt_brussels = dt_utc.astimezone(brussels_tz)
                     local_timestamp = dt_brussels.isoformat()
+                    print(f"Converted {timestamp} to {local_timestamp}")
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
                     local_timestamp = timestamp
