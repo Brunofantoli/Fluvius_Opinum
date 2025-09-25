@@ -74,7 +74,7 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
         data = response.json()
-        print("Fluvius data retrieved.")
+        print("Fluvius data retrievedbetween these two dates: ", data["data"]["headpoint"]["physicalMeters"]["quarterHourlyEnergy"][0]["start"], data["data"]["headpoint"]["physicalMeters"]["quarterHourlyEnergy"][-1]["start"])
         return data
     else:
         print("Fluvius API error:", response.text)
