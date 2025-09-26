@@ -2,3 +2,4 @@ dotenv
 msal
 datetime
 tzdata
+streamlit

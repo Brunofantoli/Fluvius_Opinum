@@ -1,0 +1,52 @@
+name: Fluvius Short URL Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      contract_number:
+        description: 'Data Access Contract Number'
+        required: true
+        type: string
+      reference_number:
+        description: 'Reference Number'
+        required: true
+        type: string
+      flow:
+        description: 'Flow (B2B or B2C)'
+        required: true
+        type: string
+      data_services:
+        description: 'Data Services (JSON list)'
+        required: true
+        type: string
+
+jobs:
+  fluvius_short_url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run short URL script
+        env:
+          FLUVIUS_CLIENT_ID: ${{ secrets.FLUVIUS_CLIENT_ID }}
+          FLUVIUS_TENANT_ID: ${{ secrets.FLUVIUS_TENANT_ID }}
+          FLUVIUS_CERT_THUMBPRINT: ${{ secrets.FLUVIUS_CERT_THUMBPRINT }}
+          FLUVIUS_KEY_PATH: ${{ secrets.FLUVIUS_KEY_PATH }}
+          FLUVIUS_CER_PATH: ${{ secrets.FLUVIUS_CER_PATH }}
+          FLUVIUS_SUBSCRIPTION_KEY: ${{ secrets.FLUVIUS_SUBSCRIPTION_KEY }}
+        run: |
+          python -c "from fluvius_opinum_functions import get_fluvius_token, get_fluvius_short_url; \
+          import json; \
+          fluvius_token = get_fluvius_token(); \
+          data_services = json.loads('${{ github.event.inputs.data_services }}'); \
+          url = get_fluvius_short_url(fluvius_token, '${{ github.event.inputs.contract_number }}', '${{ github.event.inputs.reference_number }}', '${{ github.event.inputs.flow }}', data_services); \
+          print('Short URL:', url)"

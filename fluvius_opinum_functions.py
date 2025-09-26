@@ -139,3 +139,33 @@ def send_to_opinum(data, opinum_token):
         print("Data sent to Opinum successfully.")
     else:
         print("Opinum API error:", response.text)
+
+
+def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow, data_services):
+    url = "https://apihub.fluvius.be/esco-live/v3/api/shortUrlIdentifier"
+    headers = {
+        "Authorization": f"Bearer {fluvius_token}",
+        "Ocp-Apim-Subscription-Key": os.getenv("FLUVIUS_SUBSCRIPTION_KEY"),
+        "Content-Type": "application/json"
+    }
+    body = {
+        "dataAccessContractNumber": contract_number,
+        "referenceNumber": reference_number,
+        "flow": flow,
+        "dataServices": data_services
+    }
+    response = requests.post(url, headers=headers, json=body)
+    if response.status_code == 200:
+        result = response.json()
+        print("Short URL response:", result)
+        # Assume the API response contains the identifier as a string or in a field
+        # If result is a dict, try to extract the identifier
+        if isinstance(result, dict):
+            identifier = result.get("identifier", str(result))
+        else:
+            identifier = str(result)
+        full_url = f"https://mijn.fluvius.be/verbruik/dienstverlener?id={identifier}"
+        return full_url
+    else:
+        print("Fluvius API error:", response.text)
+        return None
