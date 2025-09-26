@@ -43,4 +43,4 @@ jobs:
           OPINUM_CLIENT_SECRET: ${{ secrets.OPINUM_CLIENT_SECRET }}
           OPINUM_USERNAME: ${{ secrets.OPINUM_USERNAME }}
           OPINUM_PASSWORD: ${{ secrets.OPINUM_PASSWORD }}
-        run: python fluvius_url.py
+        run: python fluvius_url.py${{ github.event.inputs.contract_number }} ${{ github.event.inputs.reference_number }} ${{ github.event.inputs.flow }} '${{ github.event.inputs.data_services }}'
