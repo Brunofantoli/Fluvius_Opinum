@@ -35,18 +35,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run short URL script
+      - name: Run script
         env:
           FLUVIUS_CLIENT_ID: ${{ secrets.FLUVIUS_CLIENT_ID }}
           FLUVIUS_TENANT_ID: ${{ secrets.FLUVIUS_TENANT_ID }}
           FLUVIUS_CERT_THUMBPRINT: ${{ secrets.FLUVIUS_CERT_THUMBPRINT }}
-          FLUVIUS_KEY_PATH: ${{ secrets.FLUVIUS_KEY_PATH }}
-          FLUVIUS_CER_PATH: ${{ secrets.FLUVIUS_CER_PATH }}
-          FLUVIUS_SUBSCRIPTION_KEY: ${{ secrets.FLUVIUS_SUBSCRIPTION_KEY }}
-        run: |
-          python -c "from fluvius_opinum_functions import get_fluvius_token, get_fluvius_short_url; \
-          import json; \
-          fluvius_token = get_fluvius_token(); \
-          data_services = json.loads('${{ github.event.inputs.data_services }}'); \
-          url = get_fluvius_short_url(fluvius_token, '${{ github.event.inputs.contract_number }}', '${{ github.event.inputs.reference_number }}', '${{ github.event.inputs.flow }}', data_services); \
-          print('Short URL:', url)"
+          OPINUM_CLIENT_SECRET: ${{ secrets.OPINUM_CLIENT_SECRET }}
+          OPINUM_USERNAME: ${{ secrets.OPINUM_USERNAME }}
+          OPINUM_PASSWORD: ${{ secrets.OPINUM_PASSWORD }}
+        run: python fluvius_url.py
