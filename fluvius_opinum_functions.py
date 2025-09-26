@@ -143,6 +143,16 @@ def send_to_opinum(data, opinum_token):
 
 def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow, data_services):
     url = "https://apihub.fluvius.be/esco-live/v3/api/shortUrlIdentifier"
+    data_services = [
+        {
+            "dataServiceType": "VH_dag",
+            "dataPeriodFrom": "2023-01-01T23:00:00Z"
+            },
+            {
+                "dataServiceType": "VH_kwartier_uur",
+                "dataPeriodFrom": "2023-01-01T00:00:00Z"
+                }
+                ]
     headers = {
         "Authorization": f"Bearer {fluvius_token}",
         "Ocp-Apim-Subscription-Key": os.getenv("FLUVIUS_SUBSCRIPTION_KEY"),
