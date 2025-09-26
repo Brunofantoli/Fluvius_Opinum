@@ -155,6 +155,7 @@ def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow
         "dataServices": data_services
     }
     response = requests.post(url, headers=headers, json=body)
+    print(response)
     if response.status_code == 200:
         result = response.json()
         print("Short URL response:", result)
