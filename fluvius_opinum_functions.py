@@ -167,7 +167,12 @@ def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow
     response = requests.post(url, headers=headers, json=body)
     if response.status_code == 200:
         result = response.json()
-        identifier = result.get("shortUrlIdentifier", str(result))
+        # Extract the identifier from the nested structure
+        identifier = None
+        if isinstance(result, dict):
+            identifier = result.get("data", {}).get("shortUrlIdentifier")
+        if not identifier:
+            identifier = str(result)
         print("Short URL response:", identifier)
         full_url = f"https://mijn.fluvius.be/verbruik/dienstverlener?id={identifier}"
         return full_url
