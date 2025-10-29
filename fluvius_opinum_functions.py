@@ -81,50 +81,72 @@ def get_fluvius_data(fluvius_token, ean, start_date_local, end_date_local):
         return None
 
 def prepare_data(raw_data, variable_id):
+    """
+    Support both v3 formats:
+    - headpoint -> physicalMeters[] -> quarterHourlyEnergy[]
+    - headpoint (metering-on-headpoint) -> quarterHourlyEnergy[]
+    Extract 'offtake.total.value' (or fallback to 'offtake.value') and convert UTC -> Europe/Brussels.
+    """
     try:
-        physical_meters = raw_data["data"]["headpoint"]["physicalMeters"]
-        if not physical_meters:
-            print("❌ No physical meters found.")
-            return []
+        headpoint = raw_data["data"]["headpoint"]
     except KeyError:
-        print("❌ Expected key 'data.headpoint.physicalMeters' not found.")
+        print("❌ Expected key 'data.headpoint' not found.")
         return []
+
     formatted_data = []
     brussels_tz = ZoneInfo("Europe/Brussels")
-    for meter in physical_meters:
-        quarter_hourly_data = meter.get("quarterHourlyEnergy", [])
-        for entry in quarter_hourly_data:
+
+    def extract_offtake_from_measurements(measurements):
+        if not measurements:
+            return None
+        m = measurements[0]
+        # primary path in v3
+        offtake = m.get("offtake", {}).get("total", {}).get("value")
+        # fallback if structure differs
+        if offtake is None:
+            offtake = m.get("offtake", {}).get("value")
+        return offtake
+
+    # Case A: physicalMeters present (metering-on-meter)
+    if "physicalMeters" in headpoint and headpoint.get("physicalMeters"):
+        for meter in headpoint.get("physicalMeters", []):
+            qlist = meter.get("quarterHourlyEnergy", []) or []
+            for entry in qlist:
+                timestamp = entry.get("start")
+                offtake = extract_offtake_from_measurements(entry.get("measurements", []))
+                if timestamp and offtake is not None:
+                    try:
+                        dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                        local_timestamp = timestamp
+                    except Exception as e:
+                        print(f"Timestamp conversion error: {e}")
+                        local_timestamp = timestamp
+                    formatted_data.append({"date": local_timestamp, "value": offtake})
+
+    # Case B: quarterHourlyEnergy directly under headpoint (metering-on-headpoint)
+    elif "quarterHourlyEnergy" in headpoint and headpoint.get("quarterHourlyEnergy"):
+        for entry in headpoint.get("quarterHourlyEnergy", []) or []:
             timestamp = entry.get("start")
-            measurements = entry.get("measurements", [])
-            if not timestamp or not measurements:
-                continue
-            # v3: measurements is a list, but we expect only one per entry
-            measurement = measurements[0]
-            offtake = (
-                measurement.get("offtake", {})
-                .get("total", {})
-                .get("value")
-            )
-            if offtake is not None:
-                # Convert UTC timestamp to UTC +1
+            offtake = extract_offtake_from_measurements(entry.get("measurements", []))
+            if timestamp and offtake is not None:
                 try:
-                    dt_utc = datetime.fromisoformat(timestamp)
-                    local_timestamp = (dt_utc).isoformat().replace("+00:00","Z") #Opinum expects timestamps in UTC
+                    dt_utc = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                    local_timestamp = timestamp
                 except Exception as e:
                     print(f"Timestamp conversion error: {e}")
                     local_timestamp = timestamp
-                formatted_data.append({
-                    "date": local_timestamp,
-                    "value": offtake
-                })
+                formatted_data.append({"date": local_timestamp, "value": offtake})
+
+    else:
+        print("❌ No quarterHourlyEnergy found in headpoint or physicalMeters.")
+        return []
+
     if formatted_data:
         print("The data is sent between these two dates: ", formatted_data[0]["date"], formatted_data[-1]["date"])
     else:
         print("No data was sent for this period.")
-    return [{
-        "variableId": variable_id,
-        "data": formatted_data
-    }]
+
+    return [{"variableId": variable_id, "data": formatted_data}]
 
 def send_to_opinum(data, opinum_token):
     url = "https://push.opinum.com/api/data"
