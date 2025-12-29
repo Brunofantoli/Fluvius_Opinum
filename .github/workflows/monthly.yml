@@ -1,8 +1,8 @@
 name: Fluvius to Opinum Monthly Update Job
 
 on:
-  schedule:
-    - cron: "0 13 1 * *"  # 1st day of each month at 1 PM UTC (3 PM Brussels time)
+  #schedule:
+  #  - cron: "0 13 1 * *"  # 1st day of each month at 1 PM UTC (3 PM Brussels time)
   workflow_dispatch: # Allow manual trigger
 
 jobs:
