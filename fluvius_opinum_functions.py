@@ -163,16 +163,16 @@ def send_to_opinum(data, opinum_token):
         print("Opinum API error:", response.text)
 
 
-def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow, data_services):
+def get_fluvius_short_url(fluvius_token, contract_number, reference_number, flow, dataPeriodFrom="2023-02-01T00:00:00Z"):
     url = "https://apihub.fluvius.be/esco-live/v3/api/shortUrlIdentifier"
     data_services = [
         {
             "dataServiceType": "VH_dag",
-            "dataPeriodFrom": "2023-02-01T00:00:00Z"
+            "dataPeriodFrom": dataPeriodFrom
             },
             {
                 "dataServiceType": "VH_kwartier_uur",
-                "dataPeriodFrom": "2023-02-01T00:00:00Z"
+                "dataPeriodFrom": dataPeriodFrom
                 }
                 ]
     headers = {

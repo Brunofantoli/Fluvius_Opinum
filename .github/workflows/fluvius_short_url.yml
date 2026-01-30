@@ -15,9 +15,9 @@ on:
         description: 'Flow (B2B or B2C)'
         required: true
         type: string
-      data_services:
-        description: 'Data Services (JSON list)'
-        required: true
+      dataPeriodFrom:
+        description: 'How far back do you need the data (max 3 years back) (e.g., 2023-02-01T00:00:00Z)'
+        required: false
         type: string
 
 jobs:
@@ -43,4 +43,4 @@ jobs:
           OPINUM_CLIENT_SECRET: ${{ secrets.OPINUM_CLIENT_SECRET }}
           OPINUM_USERNAME: ${{ secrets.OPINUM_USERNAME }}
           OPINUM_PASSWORD: ${{ secrets.OPINUM_PASSWORD }}
-        run: python fluvius_url.py ${{ github.event.inputs.contract_number }} ${{ github.event.inputs.reference_number }} ${{ github.event.inputs.flow }} '${{ github.event.inputs.data_services }}'
+        run: python fluvius_url.py ${{ github.event.inputs.contract_number }} ${{ github.event.inputs.reference_number }} ${{ github.event.inputs.flow }} ${{ github.event.inputs.dataPeriodFrom }}
